@@ -1,0 +1,149 @@
+---
+title: "Assignment 3"
+author: "James Lopez"
+date: "October 11, 2016"
+output: pdf_document
+---
+##2
+
+#part 1
+```{r}
+set.seed(100)
+
+loops <- 1e3
+exp.pvals <- numeric(loops)
+for(i in seq(loops)) {
+  group <- rnorm(100, 60, 20)
+  assign <- sample(c(0,1), 100, replace = TRUE)
+  exp <- data.frame(group, assign)
+  for(x in 1:100) {
+    if(exp[x,'assign'] == 1) {
+      exp[x,1] <- exp[x,1] +5
+    }
+    x <- x+1
+  }
+  mod.sim <- lm(group~assign, data = exp)
+  summ <- summary(mod.sim)
+  coefs <- coef(summ)
+  exp.pvals[i] <- coefs[2,4]
+  i <- i+1
+}
+
+sum(exp.pvals<=0.05)/loops
+```
+
+The power for 100 samples is 0.231.
+
+#part 2
+
+```{r}
+set.seed(1000)
+loops_2 <- 1e3
+exp.pvals_2 <- numeric(loops_2)
+for(j in seq(loops_2)) {
+  group_2 <- rnorm(1000, 60, 20)
+  assign_2 <- sample(c(0,1), 1000, replace = TRUE)
+  exp_2 <- data.frame(group_2, assign_2)
+  for(y in 1:1000) {
+    if(exp_2[y,'assign_2'] == 1) {
+      exp_2[y,1] <- exp_2[y,1] +5
+    }
+
+  }
+  mod.sim_2 <- lm(group_2~assign_2, data = exp_2)
+  summ_2 <- summary(mod.sim_2)
+  coefs_2 <- coef(summ_2)
+  exp.pvals_2[j] <- coefs_2[2,4]
+
+}
+
+sum(exp.pvals_2<=0.05)/loops_2
+```
+
+The power for 1000 sampes is 0.98.
+
+
+
+##3
+
+The football-values data set is stored in data frame footbal, which is then converted into football with the first two columns of the original data set removed.
+
+```{r}
+
+footbal <- read.csv('proj_wr16.csv')
+football <- footbal[,-1:-2]
+```
+
+#part 1
+
+The correlation matrix of football is shown using:
+```{r}
+cor(football)
+```
+
+#part 2
+
+To make a data set with a similar correlation structure, we use mvrnorm since the football data set consists of multiple variables and corresponding means and covariances. The resulting correlation matrix of the simulated data is contained in keep.i.
+
+```{r}
+library(MASS)
+rho <- cor(football)
+vcov <- var(football)
+means <- colMeans(football)
+
+keep.i <- 0
+loops <- 1e4
+for(i in seq(loops)) {
+  football.sim <- mvrnorm(30, mu=means, Sigma=vcov)
+  keep.i <- keep.i + cor(football.sim)/loops
+}
+
+keep.i
+```
+
+#part 3
+
+The procedure for making a simulated data set with the SAME correlation structure as the football data set is the same, except we include the argument 'empirical' and set it equal to TRUE to show that the means and variances we use to create our simulated data are empirical means and variances rather than true means and variances.
+
+```{r}
+keep.j <- 0
+loops <- 1e4
+for(j in seq(loops)) {
+  football.sim <- mvrnorm(30, mu=means, Sigma=vcov, empirical = TRUE)
+  keep.j <- keep.j + cor(football.sim)/loops
+}
+keep.j
+```
+
+
+##Question 4
+
+#part 1
+
+
+\begin{equation}
+P(B) = \sum_j P(B | A_j)P(A_j), 
+\Rightarrow P(A_i | B) = \frac {P(B | A_i)P(A_i)}{\sum_j P(B | A_j)P(A_j)}
+\end{equation}
+
+
+#part 2
+
+
+\begin{equation}
+\hat{f}(\zeta) = \int_{-\infty}^{\infty} f(x)e^{-2\pi i x \zeta}dx
+\end{equation}
+
+
+#part 3
+
+
+\begin{equation}
+\textbf{J} = \frac {d\textbf{f}}{d\textbf{x}} = \bigg[\frac{\partial\textbf{f}}{\partial x_1} \cdots \frac{\partial\textbf{f}}{\partial x_n}\bigg] = \begin{bmatrix}
+\frac{\partial f_1}{\partial x_1} & \cdots & \frac{\partial f_1}{\partial x_n} \\
+\vdots & \ddots & \vdots \\
+\frac{\partial f_m}{\partial x_1} & \cdots & \frac{\partial f_m}{\partial x_n}
+\end{bmatrix}
+\end{equation}
+
+
