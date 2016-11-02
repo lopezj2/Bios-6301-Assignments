@@ -1,0 +1,176 @@
+---
+title: "Assignment 2"
+author: "James Lopez"
+date: "October 11, 2016"
+output: pdf_document
+---
+
+**Grade: 48/50**
+
+##1. 
+#part i.
+```{r}
+#setwd("~/Bios 6301")
+cancer.df <- read.csv("cancer.csv", header = TRUE)
+```
+
+#part ii.
+```{r}
+nrow(cancer.df)
+ncol(cancer.df)
+# There are 42120 rows and 8 columns in cancer.df
+```
+
+#part iii.
+```{r}
+colnames(cancer.df)
+#The column names of cancer.df are "year", "site", "state", "sex", "race", "mortality", "incidence", and "population"
+```
+
+#part iv.
+```{r}
+cancer.df[3000,6]
+# The value in the 3000th row and 6th column in cancer.df is 350.69
+```
+
+#part v.
+```{r}
+cancer.df[172,]
+```
+
+#part vi.
+```{r}
+cancer.df[,'incidence rate'] <- cancer.df[,'incidence']/100000
+```
+
+**JC Grading - 1**
+For incidence rate above should be incidence / population * 100000
+
+#part vii.
+```{r}
+sum(cancer.df[,'incidence rate'] == 0)
+#There are 23191 subgroups with a zero incidence rate
+```
+
+#part viii.
+```{r}
+which.max(cancer.df[,'incidence rate'])
+cancer.df[21387,]
+#The subgroup with the highest incidence rate is in row 21387 of cancer.df, during the year 2002 in California for white females with breast cancer.
+```
+
+**JC Grading - 1**
+syntax is fine but answer is incorrect b/c of how incidence rate was calculated
+
+
+##2. 
+#part i.
+
+The sum() function should produce an error because it only works with numeric data types. The quotations around the numbers in x assigns the numbers as characters instead of numerics.
+```{r}
+x <- c("5","12","7")
+max(x) 
+sort(x) 
+#sum(x) **Not included as an R statement in rmd due to compiling issues
+```
+
+The max is "7" because "12" begins with a 1 and "5" begins with a 5. Since x is a character vector, the "numbers" will be treated like characters and be sorted by the first character in the whole string. "Max" will not produce an error.
+
+Because x has numbers as characters, the value of 12 has the smallest value because it starts with a 1, while 7 has the largest value because it starts with a 7. So "Sort" will not produce an error.
+
+
+
+#part ii.
+
+The next two commands will produce an error message because the elements in vector y do not have the same data type. The numeric elements 7 and 12 will be coerced into characters due to the presence of "5"
+Because the vector will coerce the 7 and 12 into characters, the + operator will not work.
+```{r}
+#y <- c("5",7,12)
+#y[2] + y[3]
+
+# NOTE: Not included as R statements due to compiling issues
+```
+
+#part iii.
+```{r}
+z <- data.frame(z1="5",z2=7,z3=12)
+z[1,2] + z[1,3]
+```
+
+The + operator returned a number 19. 
+z was made into a data frame, which allows the elements of z to retain their original data type.
+z[1,2] and z[1,3] called for the numeric elements in z, so the + operator was able to be used to return numeric 19.
+
+
+##3.
+
+#part i.
+```{r}
+c(1:8, 7:1)
+```
+
+#part ii.
+```{r}
+rep(1:5, 1:5)
+```
+
+#part iii.
+```{r}
+m <- matrix(1, nrow = 3, ncol = 3)
+for(i in 1:3) {
+  m[i,i] <- 0
+}
+m
+```
+
+#part iv.
+```{r}
+n <- matrix(c(1:4), nrow = 4, ncol = 4, byrow = TRUE)
+for (i in 1:4) {
+  n[i,] <- n[i,]^i
+}
+n
+```
+
+
+##4.
+
+#part i.
+
+I made a function that tried to follow the equation posted. To demonstrate the function, I randomly selected both the base and the exponential order between 1-10.
+
+```{r}
+h <- function(x,n){
+n <- sample.int(10,1)
+x <- sample.int(10,1)
+for(i in 1:n) {
+  print(sum(x^(1:i)))
+}
+}
+h(x,n)
+```
+
+#part ii. a.
+```{r}
+j <- 1
+for (i in 1:999) {
+  if (i %% 3 == 0 | i %% 5 == 0) {
+    j <- j+i
+  }
+}
+j
+```
+
+#part ii. b.
+```{r}
+k <- 1
+for (i in 1:999999) {
+  if (i %% 4 == 0 | i %% 7 == 0) {
+    k <- k+i
+  }
+}
+k
+```
+
+**JC Grading +0 Bonus**
+
