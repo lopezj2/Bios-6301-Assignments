@@ -5,49 +5,50 @@ date: "October 11, 2016"
 output: pdf_document
 ---
 
-##1. 
-#part i.
+##1. In the datasets folder on the course GitHub repo, you will find a file called cancer.csv, which is a dataset in comma-separated values (csv) format. This is a large cancer incidence dataset that summarizes the incidence of different cancers for various subgroups.
+
+#part i. Load the data set into R and make it a data frame called cancer.df
 ```{r}
 setwd("~/Bios 6301")
 cancer.df <- read.csv("cancer.csv", header = TRUE)
 ```
 
-#part ii.
+#part ii. Determine the number of rows and columns in the data frame.
 ```{r}
 nrow(cancer.df)
 ncol(cancer.df)
 # There are 42120 rows and 8 columns in cancer.df
 ```
 
-#part iii.
+#part iii. Extract the names of the columns in cancer.df.
 ```{r}
 colnames(cancer.df)
 #The column names of cancer.df are "year", "site", "state", "sex", "race", "mortality", "incidence", and "population"
 ```
 
-#part iv.
+#part iv. Report the value of the 3000th row in column 6. 
 ```{r}
 cancer.df[3000,6]
 # The value in the 3000th row and 6th column in cancer.df is 350.69
 ```
 
-#part v.
+#part v. Report the contents of the 172nd row. 
 ```{r}
 cancer.df[172,]
 ```
 
-#part vi.
+#part vi. Create a new column that is the incidence rate (per 100,000) for each row
 ```{r}
 cancer.df[,'incidence rate'] <- cancer.df[,'incidence']/100000
 ```
 
-#part vii.
+#part vii. How many subgroups (rows) have a zero incidence rate?
 ```{r}
 sum(cancer.df[,'incidence rate'] == 0)
 #There are 23191 subgroups with a zero incidence rate
 ```
 
-#part viii.
+#part viii. Find the subgroup with the highest incidence rate
 ```{r}
 which.max(cancer.df[,'incidence rate'])
 cancer.df[21387,]
