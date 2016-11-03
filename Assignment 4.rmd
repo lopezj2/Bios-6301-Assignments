@@ -277,6 +277,9 @@ There are 10 qb's in the top 30.
 #part 1 Which function has the most arguments?
 ```{r}
 library(plyr)
+objs <- mget(ls("package:base"), inherits = TRUE)
+funs <- Filter(is.function, objs)
+
 argument.nums <- laply(funs, function(x)(length(formals(x))))
 max.args <- which(argument.nums == max(argument.nums))
 names(funs[max.args])
