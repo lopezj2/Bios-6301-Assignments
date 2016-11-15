@@ -1,3 +1,10 @@
+---
+title: "Assignment 5"
+author: "James Lopez"
+date: "11/15/2016"
+output: pdf_document
+---
+
 ```{r}
 haart <- read.csv('haart.csv', stringsAsFactors = FALSE)
 
@@ -158,7 +165,7 @@ for(i in seq(length(z$dt))) {
 a <- do.call(cbind.data.frame,z)
 ```
 
-Part 3) Create a new column visit. For each id, add the visit number. This should be 1 to n where n is the number of observations for an individual. This should include the observations created with missing a1c values.
+**Part 3) Create a new column visit. For each id, add the visit number. This should be 1 to n where n is the number of observations for an individual. This should include the observations created with missing a1c values.**
 
 ```{r}
 b <- a[,'id']
@@ -166,7 +173,7 @@ visit <- sapply(1:length(b), function(x) sum(b[1:x] == b[x]))
 c <- cbind(a, visit)
 ```
 
-Part 4) For each id, replace missing values with the mean a1c value for that individual.
+**Part 4) For each id, replace missing values with the mean a1c value for that individual.**
 
 ```{r}
 for(i in 1:ncol(c)){
@@ -174,21 +181,21 @@ for(i in 1:ncol(c)){
 }
 ```
 
-Part 5) Print mean a1c for each id.
+**Part 5) Print mean a1c for each id.**
 
 ```{r}
 means <- tapply(c[,'a1c'],c['id'],mean)
 means
 ```
 
-Part 6) Print total number of visits for each id.
+**Part 6) Print total number of visits for each id.**
 
 ```{r}
 totalvisits <- tapply(c[,'visit'],c[,'id'],length)
 totalvisits
 ```
 
-Part 7) Print the observations for id = 15.
+**Part 7) Print the observations for id = 15.**
 
 ```{r}
 c[which(c[,'id'] == 15),]
