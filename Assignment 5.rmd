@@ -4,7 +4,7 @@ haart <- read.csv('haart.csv', stringsAsFactors = FALSE)
 ```
 #1
 
-Part 1) Convert date columns into a usable (for analysis) format. Use the table command to display the counts of the year from init.date.
+**Part 1) Convert date columns into a usable (for analysis) format. Use the table command to display the counts of the year from init.date.**
 
 ```{r}
 attach(haart)
@@ -15,7 +15,7 @@ haart[,"date.death"] <- as.Date(haart[,"date.death"], format = '%m/%d/%y')
 table(format(haart[,'init.date'], '%Y')) 
 ```
 
-Part 2) Create an indicator variable (one which takes the values 0 or 1 only) to represent death within 1 year of the initial visit. How many observations died in year 1?
+**Part 2) Create an indicator variable (one which takes the values 0 or 1 only) to represent death within 1 year of the initial visit. How many observations died in year 1?**
 
 ```{r}
 haart[,'year.dead'] <- rep(0,1000)
@@ -32,7 +32,7 @@ length(which(haart[,'year.dead'] == 1))
 
 92 patients died within 1 year.
 
-Part 3) Use the init.date, last.visit and death.date columns to calculate a followup time (in days), which is the difference between the first and either the last visit or a death event (whichever comes first). If these times are longer than 1 year, censor them (this means if the value is above 365, set followup to 365). Print the quantile for this new variable.
+**Part 3) Use the init.date, last.visit and death.date columns to calculate a followup time (in days), which is the difference between the first and either the last visit or a death event (whichever comes first). If these times are longer than 1 year, censor them (this means if the value is above 365, set followup to 365). Print the quantile for this new variable.**
 
 ```{r}
 haart[,'followup'] <- rep(0,1000)
@@ -51,7 +51,7 @@ for(i in seq(nrow(haart))) {
 quantile(haart[,'followup'])
 ```
 
-Part 4) Create another indicator variable representing loss to followup; this means the observation is not known to be dead but does not have any followup visits after the first year. How many records are lost-to-followup?
+**Part 4) Create another indicator variable representing loss to followup; this means the observation is not known to be dead but does not have any followup visits after the first year. How many records are lost-to-followup?**
 
 ```{r}
 haart[,'ltf'] <- rep(0, nrow(haart))
@@ -68,7 +68,7 @@ length(which(haart[,'ltf'] == 1))
 
 There are 710 records lost-to-followup.
 
-Part 5) Recall our work in class, which separated the init.reg field into a set of indicator variables, one for each unique drug. Create these fields and append them to the database as new columns. Which drug regimen are found over 100 times?
+**Part 5) Recall our work in class, which separated the init.reg field into a set of indicator variables, one for each unique drug. Create these fields and append them to the database as new columns. Which drug regimen are found over 100 times?**
 
 ```{r}
 all.reg <- strsplit(haart[,'init.reg'], ',')
@@ -85,7 +85,7 @@ colSums(user.reg)
 haart <- cbind(haart, user.reg)
 ```
 
-Part 6) The dataset haart2.csv contains a few additional observations for the same study. Import these and append them to your master dataset (if you were smart about how you coded the previous steps, cleaning the additional observations should be easy!). Show the first five records and the last five records of the complete (and clean) data set.
+**Part 6) The dataset haart2.csv contains a few additional observations for the same study. Import these and append them to your master dataset (if you were smart about how you coded the previous steps, cleaning the additional observations should be easy!). Show the first five records and the last five records of the complete (and clean) data set.**
 
 ```{r}
 haart2 <- read.csv('haart2.csv', stringsAsFactors = FALSE)
@@ -126,12 +126,12 @@ genData <- function(n) {
 x <- genData(500)
 ```
 
-Part 1) Order the data set by id and dt
+**Part 1) Order the data set by id and dt**
 ```{r}
 y <- x[order(x[,'id'],x[,'dt']),]
 ```
 
-Part 2) For each id, determine if there is more than a one year gap in between observations. Add a new row at the one year mark, with the a1c value set to missing. A two year gap would require two new rows, and so forth.
+**Part 2) For each id, determine if there is more than a one year gap in between observations. Add a new row at the one year mark, with the a1c value set to missing. A two year gap would require two new rows, and so forth.**
 
 ```{r}
 z <- as.list(y)
