@@ -414,5 +414,5 @@ print.cohort <- function(x){
     cat(sprintf("\n~Medical Record"), "\n")
     print(medicalRecord)
   }
-}
+} 
 ```
