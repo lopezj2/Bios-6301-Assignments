@@ -394,7 +394,25 @@ plot.medicalRecord(medicalRecord)
 
 part 3
 ```{r}
-cohort <- rep(medicalRecord,10)
-mean.medicalRecord(cohort)
-print.medicalRecord(cohort)
+set.seed(8)
+cohort <- replicate(10, list(makePatient()))
+class(cohort) <- 'cohort'
+
+mean.cohort <- function(x){
+  for(medicalRecord in x){
+    class(medicalRecord) <- 'medicalRecord'
+    #Separate each record more cleanly
+    cat(sprintf("~Measurements for Patient: %s\n", patient$name))
+    cat(mean(medicalRecord), "\n")
+  }
+}
+
+print.cohort <- function(x){
+  for(medicalRecord in x){
+    class(medicalRecord) <- 'medicalRecord'
+    #Separate each record more cleanly
+    cat(sprintf("\n~Medical Record"), "\n")
+    print(medicalRecord)
+  }
+}
 ```
