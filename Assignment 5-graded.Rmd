@@ -1,0 +1,262 @@
+---
+title: "Assignment 5"
+author: "James Lopez"
+date: "11/15/2016"
+output: pdf_document
+---
+
+**Grade 42/50**
+
+Check out how Cole approache Question 2 using lapply and tapply.
+
+
+```{r}
+haart <- read.csv('haart.csv', stringsAsFactors = FALSE)
+```
+#1
+
+**Part 1) Convert date columns into a usable (for analysis) format. Use the table command to display the counts of the year from init.date.**
+
+```{r}
+attach(haart)
+haart[,"init.date"] <- as.Date(haart[,"init.date"], format = '%m/%d/%y')
+haart[,"last.visit"] <- as.Date(haart[,"last.visit"], format = '%m/%d/%y')
+haart[,"date.death"] <- as.Date(haart[,"date.death"], format = '%m/%d/%y')
+
+table(format(haart[,'init.date'], '%Y')) 
+```
+
+**Part 2) Create an indicator variable (one which takes the values 0 or 1 only) to represent death within 1 year of the initial visit. How many observations died in year 1?**
+
+```{r}
+haart[,'year.dead'] <- rep(0,1000)
+for(i in seq(nrow(haart))) {
+  if(!is.na(haart[i,'date.death'])) {
+  if(difftime(haart[i,'date.death'], haart[i,'init.date'],units='days') <= 365){
+    haart[i,'year.dead'] <- 1
+  }
+  }
+}
+
+length(which(haart[,'year.dead'] == 1))
+```
+
+92 patients died within 1 year.
+
+**Part 3) Use the init.date, last.visit and death.date columns to calculate a followup time (in days), which is the difference between the first and either the last visit or a death event (whichever comes first). If these times are longer than 1 year, censor them (this means if the value is above 365, set followup to 365). Print the quantile for this new variable.**
+
+```{r}
+haart[,'followup'] <- rep(0,1000)
+for(i in seq(nrow(haart))) {
+  if(!is.na(haart[i,'last.visit'])) {
+    haart[i,'followup'] <- difftime(haart[i,'last.visit'],haart[i,'init.date'],units='days')
+  }
+  else {
+    haart[i,'followup'] <- difftime(haart[i,'date.death'],haart[i,'init.date'],units='days')
+  }
+  if(haart[i,'followup'] >= 365) {
+    haart[i,'followup'] <- 365
+  }
+}
+
+quantile(haart[,'followup'])
+```
+
+**Part 4) Create another indicator variable representing loss to followup; this means the observation is not known to be dead but does not have any followup visits after the first year. How many records are lost-to-followup?**
+
+```{r}
+haart[,'ltf'] <- rep(0, nrow(haart))
+for(i in seq(nrow(haart))) {
+  if(is.na(haart[i,'date.death'])) {
+    if(difftime(haart[i,'last.visit'], haart[i,'init.date'], units='days') >= 365) {
+      haart[i,'ltf'] <- 1
+    }
+  }
+}
+
+length(which(haart[,'ltf'] == 1))
+```
+
+There are 710 records lost-to-followup.
+
+**JC Grading -2**
+The answer is 173 ... see below:
+
+```{r}
+sum(haart$followup<365 & !haart$death)
+```
+
+
+
+**Part 5) Recall our work in class, which separated the init.reg field into a set of indicator variables, one for each unique drug. Create these fields and append them to the database as new columns. Which drug regimen are found over 100 times?**
+
+```{r}
+all.reg <- strsplit(haart[,'init.reg'], ',')
+all.reg <- unlist(all.reg)
+all.reg <- unique(all.reg)
+row.reg <- strsplit(haart[,'init.reg'], ',')
+user.reg <- sapply(all.reg, function(j) sapply(row.reg, function(i) j %in% i))
+colSums(user.reg)
+```
+
+3TC, AZT, EFV, NVP, and D4T regimen are found over 100 times.
+
+```{r}
+haart <- cbind(haart, user.reg)
+```
+
+**Part 6) The dataset haart2.csv contains a few additional observations for the same study. Import these and append them to your master dataset (if you were smart about how you coded the previous steps, cleaning the additional observations should be easy!). Show the first five records and the last five records of the complete (and clean) data set.**
+
+```{r}
+haart2 <- read.csv('haart2.csv', stringsAsFactors = FALSE)
+haart2[,"init.date"] <- as.Date(haart2[,"init.date"], format = '%m/%d/%y')
+haart2[,"last.visit"] <- as.Date(haart2[,"last.visit"], format = '%m/%d/%y')
+haart2[,"date.death"] <- as.Date(haart2[,"date.death"], format = '%m/%d/%y')
+
+all.reg2 <- strsplit(haart2[,'init.reg'], ',')
+all.reg2 <- unlist(all.reg2)
+all.reg2 <- unique(all.reg2)
+row.reg2 <- strsplit(haart2[,'init.reg'], ',')
+user.reg2 <- sapply(all.reg, function(j) sapply(row.reg2, function(i) j %in% i))
+haart2 <- cbind(haart2, user.reg2)
+
+#haart <- rbind(haart, haart2)
+head(haart)
+tail(haart)
+```
+
+**JC Grading -3**
+
+File does not compile because of error in code above.  Occurs at: haart <- rbind(haart, haart2).  I've commented out to run rest of file.
+
+Error in rbind(deparse.level, ...) : numbers of columns of arguments do not match
+
+#2
+```{r}
+genData <- function(n) {
+  if(exists(".Random.seed", envir = .GlobalEnv)) {
+    save.seed <- get(".Random.seed", envir= .GlobalEnv)
+    on.exit(assign(".Random.seed", save.seed, envir = .GlobalEnv))
+  } else {
+    on.exit(rm(".Random.seed", envir = .GlobalEnv))
+  }
+  set.seed(n)
+  subj <- ceiling(n / 10)
+  id <- sample(subj, n, replace=TRUE)
+  times <- as.integer(difftime(as.POSIXct("2005-01-01"), as.POSIXct("2000-01-01"), units='secs'))
+  dt <- as.POSIXct(sample(times, n), origin='2000-01-01')
+  mu <- runif(subj, 4, 10)
+  a1c <- unsplit(mapply(rnorm, tabulate(id), mu, SIMPLIFY=FALSE), id)
+  data.frame(id, dt, a1c)
+}
+x <- genData(500)
+```
+
+**Part 1) Order the data set by id and dt**
+```{r}
+y <- x[order(x[,'id'],x[,'dt']),]
+```
+
+**Part 2) For each id, determine if there is more than a one year gap in between observations. Add a new row at the one year mark, with the a1c value set to missing. A two year gap would require two new rows, and so forth.**
+
+```{r}
+z <- as.list(y)
+z
+order(z$id)
+a <- table(y$id)
+a[[1]]
+
+for(i in seq(length(z$dt))) {
+  if(i == 500) break
+  difference <- difftime(z$dt[i+1],z$dt[i],units='days')
+  if(difference >= 0) {
+    if(difference >= 365) {
+      newy <- rep(z$dt[i]+365*trunc(difference/365), trunc(difference/365))
+      z$dt <- append(z$dt, newy, after=i)
+      newyid <- rep(z$id[i],trunc(difference/365))
+      z$id <- append(z$id, newyid, after=i)
+      newya1c <- rep(NA, trunc(difference/365))
+      z$a1c <- append(z$a1c,newya1c, after=i)
+    }
+  }
+}
+
+a <- do.call(cbind.data.frame,z)
+```
+
+**Part 3) Create a new column visit. For each id, add the visit number. This should be 1 to n where n is the number of observations for an individual. This should include the observations created with missing a1c values.**
+
+```{r}
+b <- a[,'id']
+visit <- sapply(1:length(b), function(x) sum(b[1:x] == b[x]))
+c <- cbind(a, visit)
+```
+
+**Part 4) For each id, replace missing values with the mean a1c value for that individual.**
+
+```{r}
+for(i in 1:ncol(c)){
+  c[is.na(c[,i]), i] <- mean(c[,i], na.rm = TRUE)
+}
+```
+
+**JC Grading -3**
+The means calculated above are column means, rather than patient-specific means.
+
+**Part 5) Print mean a1c for each id.**
+
+```{r}
+means <- tapply(c[,'a1c'],c['id'],mean)
+means
+```
+
+**Part 6) Print total number of visits for each id.**
+
+```{r}
+totalvisits <- tapply(c[,'visit'],c[,'id'],length)
+totalvisits
+```
+
+**Part 7) Print the observations for id = 15.**
+
+```{r}
+c[which(c[,'id'] == 15),]
+```
+
+# 3
+```{r}
+addr = readLines("addr.txt")
+addr = as.data.frame(do.call(rbind, strsplit(addr, split=" {2,10}")))
+stre <- sub(" ", "~",addr[,3])
+stre
+street2 <- as.data.frame(do.call(rbind, strsplit(stre, split='~')))
+street2
+addr2 <- cbind(addr[,1:2], street2, addr[,4:6])
+addr2
+colnames(addr2) <- c('lastname','firstname','streetno','streetname','city','state','zip')
+```
+
+Almost done. Notice in 'zip' col. that O's should be zeroes. Let's fix that really quickly.
+
+```{r}
+addr2[,'zip'] <- as.character(addr2[,'zip'])
+addr2[,'zip'] <- sub("O","0",addr2[,'zip'])
+addr2
+```
+
+# 4
+```{r}
+url <- "https://github.com/fonnesbeck/Bios6301/raw/master/datasets/haart.csv"
+haart_df <- read.csv(url)[,c('death','weight','hemoglobin','cd4baseline')]
+coef(summary(glm(death ~ ., data=haart_df, family=binomial(logit))))
+
+myfun <- function(dat, response) {
+  form <- as.formula(response ~ .)
+  coef(summary(glm(form, data=dat, family=binomial(logit))))
+}
+
+tryCatch(myfun(haart_df, death), error = function(e) e)
+debug(glm.fit)
+```
+
+According to the warning message, the function doesn't converge.
